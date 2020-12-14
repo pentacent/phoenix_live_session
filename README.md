@@ -1,6 +1,8 @@
 # Phoenix LiveSession
 
 ![CI](https://github.com/pentacent/phoenix_live_session/workflows/CI/badge.svg)
+ [![Hex pm](http://img.shields.io/hexpm/v/phoenix_live_session.svg?style=flat)](https://hex.pm/packages/phoenix_live_session)
+ [![Hex Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/phoenix_live_session)
 
 LiveSession provides in-memory sessions for LiveViews and Phoenix controllers.
 

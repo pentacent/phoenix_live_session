@@ -4,11 +4,13 @@ defmodule PhoenixLiveSession.MixProject do
   def project do
     [
       app: :phoenix_live_session,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      xref: [exclude: [Phoenix.LiveView]]
+      xref: [exclude: [Phoenix.LiveView]],
+      package: package(),
+      docs: docs()
     ]
   end
 
@@ -20,12 +22,29 @@ defmodule PhoenixLiveSession.MixProject do
     ]
   end
 
+  defp package do
+    %{
+      description: "In-memory live sessions for LiveViews and Phoenix controllers.",
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => "https://github.com/pentacent/phoenix_live_session"},
+      source_url: "https://github.com/pentacent/phoenix_live_session"
+    }
+  end
+
+  defp docs do
+    [
+      name: "Phoenix Live Session",
+      main: "PhoenixLiveSession",
+      extras: ["README.md"]
+    ]
+  end
+
   defp deps do
     [
       {:plug, "~> 1.10"},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_live_view, "~> 0.5"},
-      {:ex_doc, ">= 0.0.0", only: :docs}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end

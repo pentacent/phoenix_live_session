@@ -1,5 +1,7 @@
 # Phoenix LiveSession
 
+![CI](https://github.com/pentacent/phoenix_live_session/workflows/CI/badge.svg)
+
 LiveSession provides in-memory sessions for LiveViews and Phoenix controllers.
 
 You can them like regular Plug sessions in Phoenix controllers and have

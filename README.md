@@ -6,7 +6,7 @@
 
 LiveSession provides in-memory sessions for LiveViews and Phoenix controllers.
 
-You can them like regular Plug sessions in Phoenix controllers and have
+You can use them like regular Plug sessions in Phoenix controllers and have
 full read/write access to session data from LiveViews - including updates
 via Phoenix.PubSub.
 

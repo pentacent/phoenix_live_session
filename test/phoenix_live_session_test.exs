@@ -8,7 +8,6 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
-
 defmodule PhoenixLiveSessionTest do
   use ExUnit.Case, async: true
   alias PhoenixLiveSession, as: LiveSession
@@ -30,15 +29,15 @@ defmodule PhoenixLiveSessionTest do
       %Phoenix.LiveView.Socket{connected?: true}
       |> LiveSession.maybe_subscribe(session)
 
-      LiveSession.put_session(socket, "foo", "bar")
+    LiveSession.put_session(socket, "foo", "bar")
 
-      assert {:messages, [message]} = Process.info(self(), :messages)
-      assert {:live_session_updated, %{"foo" => "bar"}} = message
+    assert {:messages, [message]} = Process.info(self(), :messages)
+    assert {:live_session_updated, %{"foo" => "bar"}} = message
 
-      LiveSession.put_session(socket, "fizz", "buzz")
+    LiveSession.put_session(socket, "fizz", "buzz")
 
-      assert {:messages, [_, message]} = Process.info(self(), :messages)
-      assert {:live_session_updated, %{"foo" => "bar", "fizz" => "buzz"}} = message
+    assert {:messages, [_, message]} = Process.info(self(), :messages)
+    assert {:live_session_updated, %{"foo" => "bar", "fizz" => "buzz"}} = message
   end
 
   test "put and get session" do

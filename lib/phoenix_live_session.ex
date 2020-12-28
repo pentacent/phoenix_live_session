@@ -224,14 +224,14 @@ defmodule PhoenixLiveSession do
   """
   @spec maybe_subscribe(Phoenix.LiveView.Socket.t(), Plug.Session.Store.session()) ::
           Phoenix.LiveView.Socket.t()
+  def maybe_subscribe(socket, session)
+
   def maybe_subscribe(%{connected?: true} = socket, %{__sid__: sid, __opts__: opts}) do
     pub_sub = Keyword.fetch!(opts, :pub_sub)
     channel = "live_session:#{sid}"
     PubSub.subscribe(pub_sub, channel)
 
-    socket
-    |> Phoenix.LiveView.assign(:__live_session_id__, sid)
-    |> Phoenix.LiveView.assign(:__live_session_opts__, opts)
+    put_in(socket.private[:live_session], id: sid, opts: opts)
   end
 
   def maybe_subscribe(socket, _) do
@@ -245,8 +245,8 @@ defmodule PhoenixLiveSession do
   @spec put_session(Phoenix.LiveView.Socket.t(), String.t() | atom(), term()) ::
           Phoenix.LiveView.Socket.t()
   def put_session(socket, key, value) do
-    sid = socket.assigns.__live_session_id__
-    opts = socket.assigns.__live_session_opts__
+    sid = get_in(socket.private, [:live_session, :id])
+    opts = get_in(socket.private, [:live_session, :opts])
     put_in(sid, to_string(key), value, opts)
 
     socket

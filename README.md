@@ -37,6 +37,12 @@ via Phoenix.PubSub.
   Once you’ve subscribed to a LiveSession, you can handle session
   updates with `handle_info/2` and push session updates with `put_session/3`.
 
+### Usage in LiveComponents
+  You can also use LiveSessions without subscribing to them in a LiveView.
+  
+  In that case, you can directly use the `session` data structure from the
+  `mount/3` callback to use `put_session/3`.
+
 ### Example
 ```elixir
 defmodule ShoppingCartLive

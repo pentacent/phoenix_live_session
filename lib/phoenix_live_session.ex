@@ -239,16 +239,33 @@ defmodule PhoenixLiveSession do
   end
 
   @doc """
+  This function can be called in two ways:any()
+
+  ## Using a Socket
   Use like `Plug.Conn.put_session/3` but on a LiveView socket previously
   subscribed to PhoenixLiveSession with `maybe_subscribe/2`.
+  Returns socket
+
+  ## Using on a Session Map
+  If you don’t want to subscribe your Socket or if you want to store
+  session data from outside a LiveView, use the session data map to call
+  from the `mount/3` callback directly in this function.
+  Retrieves and returns updated session data.
   """
   @spec put_session(Phoenix.LiveView.Socket.t(), String.t() | atom(), term()) ::
           Phoenix.LiveView.Socket.t()
-  def put_session(socket, key, value) do
+  def put_session(%Phoenix.LiveView.Socket{} = socket, key, value) do
     sid = get_in(socket.private, [:live_session, :id])
     opts = get_in(socket.private, [:live_session, :opts])
     put_in(sid, to_string(key), value, opts)
 
     socket
+  end
+
+  @spec put_session(%{__sid__: String.t(), __opts__: list()}, String.t() | atom(), term()) :: %{}
+  def put_session(%{__sid__: sid, __opts__: opts}, key, value) do
+    put_in(sid, to_string(key), value, opts)
+
+    get(nil, sid, opts)
   end
 end

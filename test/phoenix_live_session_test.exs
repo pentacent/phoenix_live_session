@@ -74,4 +74,15 @@ defmodule PhoenixLiveSessionTest do
     opts = LiveSession.init(pub_sub: @pub_sub)
     assert {nil, %{}} = LiveSession.get(%{}, "sid-unknown", opts)
   end
+
+  test "put session data without subscribing" do
+    opts = LiveSession.init(pub_sub: @pub_sub)
+    sid = LiveSession.put(nil, nil, %{foo: :bar}, opts)
+    {_, session} = LiveSession.get(nil, sid, opts)
+
+    {_, updated_session} = LiveSession.put_session(session, "fizz", :buzz)
+
+    assert %{"fizz" => :buzz} = updated_session
+    assert %{"fizz" => :buzz} = elem(LiveSession.get(nil, sid, opts), 1)
+  end
 end

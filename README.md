@@ -19,7 +19,8 @@ via Phoenix.PubSub.
       @session_options [
           store: PhoenixLiveSession,
           pub_sub: MyApp.PubSub,
-          signing_salt: "your-salt"
+          signing_salt: "your-salt",
+          key: "session"
       ]
    ```
 

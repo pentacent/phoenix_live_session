@@ -26,7 +26,9 @@ defmodule PhoenixLiveSessionTest do
     {"sid", session} = LiveSession.get(%{}, "sid", opts)
 
     socket =
-      %Phoenix.LiveView.Socket{connected?: true}
+      %Phoenix.LiveView.Socket{}
+      |> Map.put(:connected?, true)
+      |> Map.put(:transport_pid, "fake-pid")
       |> LiveSession.maybe_subscribe(session)
 
     LiveSession.put_session(socket, "foo", "bar")

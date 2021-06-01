@@ -33,7 +33,8 @@ defmodule PhoenixLiveSession do
   ## Usage in LiveViews
   Use `maybe_subscribe/2` in your `mount/3` function to subscribe to
   LiveSession updates.
-  Only sockets with `connected? == true` are subscribed by `maybe_subscribe/2`.
+  Only sockets for which `Phoenix.LiveView.connected?/1` returns `true` are
+  subscribed by `maybe_subscribe/2`.
 
   Once you’ve subscribed to a LiveSession, you can handle session
   updates with `handle_info/2` and push session updates with `put_session/3`.
@@ -77,7 +78,7 @@ defmodule PhoenixLiveSession do
   your server and are not shared between servers in multi-node setups.
   """
 
-  alias Phoenix.PubSub
+  alias Phoenix.{PubSub, LiveView}
 
   @behaviour Plug.Session.Store
 
@@ -224,18 +225,16 @@ defmodule PhoenixLiveSession do
   """
   @spec maybe_subscribe(Phoenix.LiveView.Socket.t(), Plug.Session.Store.session()) ::
           Phoenix.LiveView.Socket.t()
-  def maybe_subscribe(socket, session)
+  def maybe_subscribe(socket, %{__sid__: sid, __opts__: opts}) do
+    if LiveView.connected?(socket) do
+      pub_sub = Keyword.fetch!(opts, :pub_sub)
+      channel = "live_session:#{sid}"
+      PubSub.subscribe(pub_sub, channel)
 
-  def maybe_subscribe(%{connected?: true} = socket, %{__sid__: sid, __opts__: opts}) do
-    pub_sub = Keyword.fetch!(opts, :pub_sub)
-    channel = "live_session:#{sid}"
-    PubSub.subscribe(pub_sub, channel)
-
-    put_in(socket.private[:live_session], id: sid, opts: opts)
-  end
-
-  def maybe_subscribe(socket, _) do
-    socket
+      put_in(socket.private[:live_session], id: sid, opts: opts)
+    else
+      socket
+    end
   end
 
   @doc """

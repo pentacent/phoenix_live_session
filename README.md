@@ -33,7 +33,8 @@ via Phoenix.PubSub.
 ### Usage in LiveViews
   Use `maybe_subscribe/2` in your `mount/3` function to subscribe to
   LiveSession updates.
-  Only sockets with `connected? == true` are subscribed by `maybe_subscribe/2`.
+  Only sockets for which `Phoenix.LiveView.connected?/1` returns `true` are
+  subscribed by `maybe_subscribe/2`.
 
   Once you’ve subscribed to a LiveSession, you can handle session
   updates with `handle_info/2` and push session updates with `put_session/3`.

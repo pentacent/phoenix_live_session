@@ -10,7 +10,9 @@ defmodule PhoenixLiveSession.MixProject do
       deps: deps(),
       xref: [exclude: [Phoenix.LiveView]],
       package: package(),
-      docs: docs()
+      docs: docs(),
+      source_url: "https://github.com/pentacent/phoenix_live_session",
+      homepage_url: "https://github.com/pentacent/phoenix_live_session"
     ]
   end
 
@@ -27,7 +29,6 @@ defmodule PhoenixLiveSession.MixProject do
       description: "In-memory live sessions for LiveViews and Phoenix controllers.",
       licenses: ["Apache-2.0"],
       links: %{"GitHub" => "https://github.com/pentacent/phoenix_live_session"},
-      source_url: "https://github.com/pentacent/phoenix_live_session"
     }
   end
 

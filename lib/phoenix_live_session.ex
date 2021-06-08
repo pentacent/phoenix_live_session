@@ -225,8 +225,10 @@ defmodule PhoenixLiveSession do
   """
   @spec maybe_subscribe(Phoenix.LiveView.Socket.t(), Plug.Session.Store.session()) ::
           Phoenix.LiveView.Socket.t()
-  def maybe_subscribe(socket, %{__sid__: sid, __opts__: opts}) do
+  def maybe_subscribe(socket, session) do
     if LiveView.connected?(socket) do
+      sid = Map.fetch!(session, :__sid__)
+      opts = Map.fetch!(session, :__opts__)
       pub_sub = Keyword.fetch!(opts, :pub_sub)
       channel = "live_session:#{sid}"
       PubSub.subscribe(pub_sub, channel)

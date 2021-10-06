@@ -69,7 +69,7 @@ defmodule ShoppingCartLive
     {:noreply, socket}
   end
 
-  defp put_sesion_assigns(socket, session) do
+  defp put_session_assigns(socket, session) do
     socket
     |> assign(:shopping_cart, Map.get(session, "shopping_cart", []))
   end

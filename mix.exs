@@ -28,7 +28,7 @@ defmodule PhoenixLiveSession.MixProject do
     %{
       description: "In-memory live sessions for LiveViews and Phoenix controllers.",
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => "https://github.com/pentacent/phoenix_live_session"},
+      links: %{"GitHub" => "https://github.com/pentacent/phoenix_live_session"}
     }
   end
 

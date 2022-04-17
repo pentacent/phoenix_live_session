@@ -235,6 +235,7 @@ defmodule PhoenixLiveSession do
       socket
     end
   end
+
   def maybe_subscribe(socket, _), do: socket
 
   @doc """
@@ -262,7 +263,7 @@ defmodule PhoenixLiveSession do
   end
 
   @spec put_session(map(), String.t() | atom(), term()) :: %{}
-  def put_session(%{"__sid__" => sid, "__opts__" =>  opts}, key, value) do
+  def put_session(%{"__sid__" => sid, "__opts__" => opts}, key, value) do
     put_in(sid, to_string(key), value, opts)
 
     get(nil, sid, opts)

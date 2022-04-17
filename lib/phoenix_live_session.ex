@@ -261,7 +261,7 @@ defmodule PhoenixLiveSession do
     socket
   end
 
-  @spec put_session(%{"__sid__" => String.t(), "__opts__" => list()}, String.t() | atom(), term()) :: %{}
+  @spec put_session(map(), String.t() | atom(), term()) :: %{}
   def put_session(%{"__sid__" => sid, "__opts__" =>  opts}, key, value) do
     put_in(sid, to_string(key), value, opts)
 

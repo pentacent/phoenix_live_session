@@ -180,8 +180,8 @@ defmodule PhoenixLiveSession do
 
   defp put_meta(data, sid, opts) do
     data
-    |> Map.put(:__sid__, sid)
-    |> Map.put(:__opts__, opts)
+    |> Map.put("__sid__", sid)
+    |> Map.put("__opts__", opts)
   end
 
   defp maybe_clean(opts) do
@@ -225,19 +225,17 @@ defmodule PhoenixLiveSession do
   """
   @spec maybe_subscribe(Phoenix.LiveView.Socket.t(), Plug.Session.Store.session()) ::
           Phoenix.LiveView.Socket.t()
-  def maybe_subscribe(socket, session) do
+  def maybe_subscribe(socket, %{"__sid__" => sid, "__opts__" => opts}) do
     if LiveView.connected?(socket) do
-      sid = Map.fetch!(session, :__sid__)
-      opts = Map.fetch!(session, :__opts__)
       pub_sub = Keyword.fetch!(opts, :pub_sub)
-      channel = "live_session:#{sid}"
-      PubSub.subscribe(pub_sub, channel)
+      PubSub.subscribe(pub_sub, "live_session:#{sid}")
 
       put_in(socket.private[:live_session], id: sid, opts: opts)
     else
       socket
     end
   end
+  def maybe_subscribe(socket, _), do: socket
 
   @doc """
   This function can be called in two ways:any()
@@ -263,8 +261,8 @@ defmodule PhoenixLiveSession do
     socket
   end
 
-  @spec put_session(%{__sid__: String.t(), __opts__: list()}, String.t() | atom(), term()) :: %{}
-  def put_session(%{__sid__: sid, __opts__: opts}, key, value) do
+  @spec put_session(%{"__sid__" => String.t(), "__opts__" => list()}, String.t() | atom(), term()) :: %{}
+  def put_session(%{"__sid__" => sid, "__opts__" =>  opts}, key, value) do
     put_in(sid, to_string(key), value, opts)
 
     get(nil, sid, opts)

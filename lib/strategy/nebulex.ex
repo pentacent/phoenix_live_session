@@ -18,6 +18,7 @@ defmodule PhoenixLiveSession.Strategy.Nebulex do
     else
       true ->
         @cache.delete({table, sid})
+        nil
 
       nil ->
         nil

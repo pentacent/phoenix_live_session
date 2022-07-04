@@ -46,7 +46,7 @@ defmodule PhoenixLiveSession.MixProject do
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_live_view, "~> 0.5"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:nebulex, "~> 2.3.2"}
+      {:nebulex, "~> 2.4"}
     ]
   end
 end

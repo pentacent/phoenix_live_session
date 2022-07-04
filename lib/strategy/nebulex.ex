@@ -4,11 +4,7 @@ defmodule PhoenixLiveSession.Strategy.Nebulex do
   """
   alias PhoenixLiveSession.Strategy
   @behaviour Strategy
-  @cache Application.get_env(
-           :phoenix_live_session,
-           :nebulex_cache,
-           PhoenixLiveSession.Nebulex.TestCache
-         )
+  @cache Application.get_env(:phoenix_live_session, :nebulex_cache)
 
   @impl Strategy
   def get(table, sid) do

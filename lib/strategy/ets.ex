@@ -20,7 +20,7 @@ defmodule PhoenixLiveSession.Strategy.ETS do
   @behaviour Strategy
 
   @impl Strategy
-  def get(table, sid) do
+  def get(table, sid, _opts \\ []) do
     case :ets.lookup(table, sid) do
       [{^sid, data, expires_at}] ->
         {:ok, data, expires_at}
@@ -31,17 +31,17 @@ defmodule PhoenixLiveSession.Strategy.ETS do
   end
 
   @impl Strategy
-  def put(table, sid, data, expires_at) do
+  def put(table, sid, data, expires_at, _opts \\ []) do
     :ets.insert(table, {sid, data, expires_at})
   end
 
   @impl Strategy
-  def put_new(table, sid, data, expires_at) do
+  def put_new(table, sid, data, expires_at, _opts \\ []) do
     :ets.insert_new(table, {sid, data, expires_at})
   end
 
   @impl Strategy
-  def delete(table, sid) do
+  def delete(table, sid, _opts \\ []) do
     :ets.delete(table, sid)
   end
 

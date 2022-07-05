@@ -4,16 +4,17 @@ defmodule PhoenixLiveSession.Strategy.Nebulex do
   """
   alias PhoenixLiveSession.Strategy
   @behaviour Strategy
-  @cache Application.get_env(:phoenix_live_session, :nebulex_cache)
 
   @impl Strategy
-  def get(table, sid) do
-    with {data, expires_at} <- @cache.get({table, sid}),
+  def get(table, sid, opts) do
+    cache = Keyword.fetch!(:nebulex_cache)
+
+    with {data, expires_at} <- cache.get({table, sid}),
          false <- :os.system_time(:millisecond) > expires_at do
       {:ok, data, expires_at}
     else
       true ->
-        @cache.delete({table, sid})
+        cache.delete({table, sid})
         nil
 
       nil ->
@@ -27,17 +28,20 @@ defmodule PhoenixLiveSession.Strategy.Nebulex do
   end
 
   @impl Strategy
-  def put(table, sid, data, expires_at) do
-    @cache.put({table, sid}, {data, expires_at})
+  def put(table, sid, data, expires_at, opts) do
+    cache = Keyword.fetch!(:nebulex_cache)
+    cache.put({table, sid}, {data, expires_at})
   end
 
   @impl Strategy
-  def put_new(table, sid, data, expires_at) do
-    @cache.put_new({table, sid}, {data, expires_at})
+  def put_new(table, sid, data, expires_at, opts) do
+    cache = Keyword.fetch!(:nebulex_cache)
+    cache.put_new({table, sid}, {data, expires_at})
   end
 
   @impl Strategy
-  def delete(table, sid) do
-    @cache.delete({table, sid})
+  def delete(table, sid, opts) do
+    cache = Keyword.fetch!(:nebulex_cache)
+    cache.delete({table, sid})
   end
 end

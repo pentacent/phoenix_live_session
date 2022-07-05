@@ -9,8 +9,7 @@ defmodule PhoenixLiveSession.Strategy.Nebulex do
   def get(table, sid, opts) do
     cache = Keyword.fetch!(opts, :nebulex_cache)
 
-    with {data, expires_at} <- cache.get({table, sid}),
-         false <- :os.system_time(:millisecond) > expires_at do
+    with {data, expires_at} <- cache.get({table, sid}) do
       {:ok, data, expires_at}
     else
       true ->

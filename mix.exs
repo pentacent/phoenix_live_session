@@ -28,7 +28,7 @@ defmodule PhoenixLiveSession.MixProject do
     %{
       description: "In-memory live sessions for LiveViews and Phoenix controllers.",
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => "https://github.com/pentacent/phoenix_live_session"},
+      links: %{"GitHub" => "https://github.com/pentacent/phoenix_live_session"}
     }
   end
 
@@ -45,7 +45,8 @@ defmodule PhoenixLiveSession.MixProject do
       {:plug, "~> 1.10"},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_live_view, "~> 0.5"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:nebulex, "~> 2.4"}
     ]
   end
 end

@@ -85,6 +85,7 @@ defmodule PhoenixLiveSession do
   @default_table :phoenix_live_sessions
   @default_lifetime 48 * 60 * 60_000
   @default_clean_interval 60_000
+  @default_strategy PhoenixLiveSession.Strategy.ETS
   @max_tries 100
 
   #
@@ -98,30 +99,16 @@ defmodule PhoenixLiveSession do
 
   def get(_conn, sid, opts) do
     table = Keyword.fetch!(opts, :table)
-
+    cache = Keyword.fetch!(opts, :strategy)
     maybe_clean(opts)
 
-    case :ets.lookup(table, sid) do
-      [{^sid, data, _expires_at}] ->
-        :ets.update_element(table, sid, {3, expires_at(opts)})
+    case cache.get(table, sid, opts) do
+      {:ok, data, _expires_at} ->
         {sid, put_meta(data, sid, opts)}
 
-      [] ->
+      nil ->
         {nil, %{}}
     end
-  end
-
-  defp clean(table, opts) do
-    lifetime = Keyword.fetch!(opts, :lifetime)
-    now = DateTime.utc_now()
-
-    cutoff =
-      now
-      |> DateTime.add(-1 * lifetime, :millisecond)
-      |> DateTime.to_unix()
-
-    :ets.select_delete(table, [{{:_, :_, :"$1"}, [{:<, :"$1", cutoff}], [true]}])
-    :ets.insert(table, {"last_clean", nil, DateTime.to_unix(now)})
   end
 
   def put(_conn, nil, data, opts) do
@@ -130,24 +117,27 @@ defmodule PhoenixLiveSession do
 
   def put(_conn, sid, data, opts) do
     table = Keyword.fetch!(opts, :table)
-    :ets.insert(table, {sid, data, expires_at(opts)})
+    cache = Keyword.fetch!(opts, :strategy)
+    cache.put(table, sid, data, expires_at(opts), opts)
     broadcast_update(sid, data, opts)
     sid
   end
 
   def delete(_conn, sid, opts) do
     table = Keyword.fetch!(opts, :table)
+    cache = Keyword.fetch!(opts, :strategy)
     broadcast_update(sid, %{}, opts)
-    :ets.delete(table, sid)
+    cache.delete(table, sid, opts)
     :ok
   end
 
   defp put_new(data, opts, counter \\ 0)
        when counter < @max_tries do
     table = Keyword.fetch!(opts, :table)
+    cache = Keyword.fetch!(opts, :strategy)
     sid = Base.encode64(:crypto.strong_rand_bytes(96))
 
-    if :ets.insert_new(table, {sid, data, expires_at(opts)}) do
+    if cache.put_new(table, sid, data, expires_at(opts), opts) do
       broadcast_update(sid, data, opts)
       sid
     else
@@ -157,16 +147,17 @@ defmodule PhoenixLiveSession do
 
   defp put_in(sid, key, value, opts) do
     table = Keyword.fetch!(opts, :table)
+    cache = Keyword.fetch!(opts, :strategy)
 
-    case :ets.lookup(table, sid) do
-      [{^sid, data, _expires_at}] ->
+    case cache.get(table, sid, opts) do
+      {:ok, data, _expires_at} ->
         updated_data = Map.put(data, key, value)
-        :ets.update_element(table, sid, {2, updated_data})
-        :ets.update_element(table, sid, {3, expires_at(opts)})
+        # Nebulex only has a :ets.put_in equivalent if using the Local caching strategy
+        cache.put(table, sid, updated_data, expires_at(opts), opts)
         broadcast_update(sid, updated_data, opts)
         sid
 
-      [] ->
+      nil ->
         put(nil, sid, %{key => value}, opts)
     end
   end
@@ -176,6 +167,7 @@ defmodule PhoenixLiveSession do
     |> Keyword.put_new(:table, @default_table)
     |> Keyword.put_new(:lifetime, @default_lifetime)
     |> Keyword.put_new(:clean_interval, @default_clean_interval)
+    |> Keyword.put_new(:strategy, @default_strategy)
   end
 
   defp put_meta(data, sid, opts) do
@@ -186,17 +178,18 @@ defmodule PhoenixLiveSession do
 
   defp maybe_clean(opts) do
     table = Keyword.fetch!(opts, :table)
+    cache = Keyword.fetch!(opts, :strategy)
     clean_interval = Keyword.fetch!(opts, :clean_interval)
     latest_possible_clean = DateTime.utc_now() |> DateTime.add(-1 * clean_interval, :millisecond)
 
-    case :ets.lookup(table, "last_clean") do
-      [{"last_clean", _, last_clean}] ->
+    case cache.get(table, "last_clean", opts) do
+      {:ok, _data, last_clean} ->
         if latest_possible_clean > last_clean do
-          clean(table, opts)
+          cache.clean_expired(table, opts)
         end
 
-      [] ->
-        clean(table, opts)
+      nil ->
+        cache.clean_expired(table, opts)
     end
   end
 

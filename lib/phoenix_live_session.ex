@@ -102,7 +102,7 @@ defmodule PhoenixLiveSession do
     cache = Keyword.fetch!(opts, :strategy)
     maybe_clean(opts)
 
-    case cache.get(table, sid) do
+    case cache.get(table, sid, opts) do
       {:ok, data, _expires_at} ->
         {sid, put_meta(data, sid, opts)}
 
@@ -118,7 +118,7 @@ defmodule PhoenixLiveSession do
   def put(_conn, sid, data, opts) do
     table = Keyword.fetch!(opts, :table)
     cache = Keyword.fetch!(opts, :strategy)
-    cache.put(table, sid, data, expires_at(opts))
+    cache.put(table, sid, data, expires_at(opts), opts)
     broadcast_update(sid, data, opts)
     sid
   end
@@ -127,7 +127,7 @@ defmodule PhoenixLiveSession do
     table = Keyword.fetch!(opts, :table)
     cache = Keyword.fetch!(opts, :strategy)
     broadcast_update(sid, %{}, opts)
-    cache.delete(table, sid)
+    cache.delete(table, sid, opts)
     :ok
   end
 
@@ -137,7 +137,7 @@ defmodule PhoenixLiveSession do
     cache = Keyword.fetch!(opts, :strategy)
     sid = Base.encode64(:crypto.strong_rand_bytes(96))
 
-    if cache.put_new(table, sid, data, expires_at(opts)) do
+    if cache.put_new(table, sid, data, expires_at(opts), opts) do
       broadcast_update(sid, data, opts)
       sid
     else
@@ -149,11 +149,11 @@ defmodule PhoenixLiveSession do
     table = Keyword.fetch!(opts, :table)
     cache = Keyword.fetch!(opts, :strategy)
 
-    case cache.get(table, sid) do
+    case cache.get(table, sid, opts) do
       {:ok, data, _expires_at} ->
         updated_data = Map.put(data, key, value)
         # Nebulex only has a :ets.put_in equivalent if using the Local caching strategy
-        cache.put(table, sid, updated_data, expires_at(opts))
+        cache.put(table, sid, updated_data, expires_at(opts), opts)
         broadcast_update(sid, updated_data, opts)
         sid
 
@@ -182,7 +182,7 @@ defmodule PhoenixLiveSession do
     clean_interval = Keyword.fetch!(opts, :clean_interval)
     latest_possible_clean = DateTime.utc_now() |> DateTime.add(-1 * clean_interval, :millisecond)
 
-    case cache.get(table, "last_clean") do
+    case cache.get(table, "last_clean", opts) do
       {:ok, _data, last_clean} ->
         if latest_possible_clean > last_clean do
           cache.clean_expired(table, opts)
